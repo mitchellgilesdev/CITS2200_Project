@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="CITS2200">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/CITS2200.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

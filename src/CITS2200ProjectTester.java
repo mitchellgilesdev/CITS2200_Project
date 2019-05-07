@@ -1,5 +1,5 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
 
 public class CITS2200ProjectTester {
     public static void loadGraph(CITS2200Project project, String path) {

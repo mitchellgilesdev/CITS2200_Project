@@ -1,4 +1,9 @@
-class MYCITS2200Project implements CITS2200Project{
+public class MyCITS2200Project implements CITS2200Project{
+
+    //Constructor for the class
+    public MyCITS2200Project(){
+
+    }
 
     @Override
     public void addEdge(String urlFrom, String urlTo) {

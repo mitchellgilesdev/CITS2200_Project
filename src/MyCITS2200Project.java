@@ -1,63 +1,45 @@
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 
 public class MyCITS2200Project implements CITS2200Project {
 
     private HashMap<Integer, String> vertMap;
-    private LinkedList<Integer> adjList[]; //storing the graph
+    private ArrayList<LinkedList<Integer>> adjList;//storing the graph
+    private HashMap<String, Integer> reverseMap;
     private int vertMapIndex;
-
-    public class wikiGraph {
-
-        private int numVertices;
-
-        public wikiGraph(int numVertex) {
-            numVertices = numVertex;
-            adjList = new LinkedList[numVertex];
-
-            for (int i = 0; i < numVertices; i++) {
-                adjList[i] = new LinkedList<>();
-            }
-        }
-    }
 
     //Constructor for the class
     public MyCITS2200Project() {
+        adjList = new ArrayList<>();
         vertMap = new HashMap<>();
+        reverseMap = new HashMap<>();
         vertMapIndex = 0;
-
     }
 
+    //Check if vert exists, if not adds it to vertMap
+    //returning the ID in the vertMap
+    private int addVert(String url) {
 
-    //setter method.
-    private boolean addVert(String url) {
-
+        //if there is no vertex existing
         if (!vertMap.containsValue(url)) {
-            vertMap.put(vertMapIndex++, url);
+            vertMap.put(vertMapIndex, url);
+            reverseMap.put(url, vertMapIndex);
+            return vertMapIndex++;
         }
-        return true;
+        //the vertex already exists, return the index
+        return reverseMap.get(url);
     }
 
-
-    private int urlToId(String url) {
-        int temp = vertMapIndex;
-        vertMap.put(vertMapIndex, url);
-        vertMapIndex++;
-        return temp;
-    }
 
     @Override
     public void addEdge(String urlFrom, String urlTo) {
 
-        addVert(urlFrom);
-        addVert(urlTo);
+        int urlFromID =  addVert(urlFrom);
+        int urlToID = addVert(urlTo);
 
-        //Once we know that the vertexes exist we can add the edges to the adjList
-        int urlFromId = urlToId(urlFrom);
-        int urlToId = urlToId(urlTo);
-
-        adjList[urlFromId].add(urlToId);
-
+        adjList.add(urlFromID, new LinkedList<>(Collections.singleton(urlToID)));
 
     }
 

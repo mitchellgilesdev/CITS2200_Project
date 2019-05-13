@@ -39,8 +39,11 @@ public class MyCITS2200Project implements CITS2200Project {
         int urlFromID =  addVert(urlFrom);
         int urlToID = addVert(urlTo);
 
-        adjList.add(urlFromID, new LinkedList<>(Collections.singleton(urlToID)));
 
+        //this does not work as expected currently.
+        /*
+        adjList.add(urlFromID, new LinkedList<>(Collections.singleton(urlToID)));
+        */
     }
 
     @Override

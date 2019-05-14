@@ -9,6 +9,7 @@ public class MyCITS2200Project implements CITS2200Project {
     private ArrayList<LinkedList<Integer>> transposeGraph;
     private HashMap<String, Integer> reverseMap;
     private int vertMapIndex; // the next index of the vertMap
+    private int test;
 
     //Constructor for the class
     public MyCITS2200Project() {

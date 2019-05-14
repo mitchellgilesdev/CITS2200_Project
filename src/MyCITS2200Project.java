@@ -6,12 +6,14 @@ public class MyCITS2200Project implements CITS2200Project {
 
     private HashMap<Integer, String> vertMap;
     private ArrayList<LinkedList<Integer>> adjList;//storing the graph
+    private ArrayList<LinkedList<Integer>> transposeGraph;
     private HashMap<String, Integer> reverseMap;
     private int vertMapIndex; // the next index of the vertMap
 
     //Constructor for the class
     public MyCITS2200Project() {
         adjList = new ArrayList<>();
+        transposeGraph = new ArrayList<>();
         vertMap = new HashMap<>();
         reverseMap = new HashMap<>();
         vertMapIndex = 0;
@@ -41,6 +43,7 @@ public class MyCITS2200Project implements CITS2200Project {
 
         adjList.get(urlFromID).add(urlToID);
 
+
     }
 
     @Override
@@ -55,6 +58,14 @@ public class MyCITS2200Project implements CITS2200Project {
 
     @Override
     public String[][] getStronglyConnectedComponents() {
+
+        // DFS on adjList and transpose graph
+        /*
+        any vertex whose subtree was explored before another in the DFS order
+        (this is called post-order) either must
+        not have a path to that other vertex, or is a descendant of it in the DFS tree
+        */
+
         return new String[0][];
     }
 

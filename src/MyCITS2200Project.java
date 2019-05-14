@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -8,7 +7,7 @@ public class MyCITS2200Project implements CITS2200Project {
     private HashMap<Integer, String> vertMap;
     private ArrayList<LinkedList<Integer>> adjList;//storing the graph
     private HashMap<String, Integer> reverseMap;
-    private int vertMapIndex;
+    private int vertMapIndex; // the next index of the vertMap
 
     //Constructor for the class
     public MyCITS2200Project() {
@@ -26,6 +25,7 @@ public class MyCITS2200Project implements CITS2200Project {
         if (!vertMap.containsValue(url)) {
             vertMap.put(vertMapIndex, url);
             reverseMap.put(url, vertMapIndex);
+            adjList.add(vertMapIndex, new LinkedList<>()); //add the vertex to the graph
             return vertMapIndex++;
         }
         //the vertex already exists, return the index
@@ -36,20 +36,15 @@ public class MyCITS2200Project implements CITS2200Project {
     @Override
     public void addEdge(String urlFrom, String urlTo) {
 
-        int urlFromID =  addVert(urlFrom);
+        int urlFromID = addVert(urlFrom);
         int urlToID = addVert(urlTo);
 
+        adjList.get(urlFromID).add(urlToID);
 
-        //this does not work as expected currently.
-        /*
-        adjList.add(urlFromID, new LinkedList<>(Collections.singleton(urlToID)));
-        */
     }
 
     @Override
     public int getShortestPath(String urlFrom, String urlTo) {
-
-
         return 0;
     }
 

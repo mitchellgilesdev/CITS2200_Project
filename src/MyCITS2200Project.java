@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.*;
 
 public class MyCITS2200Project implements CITS2200Project {
 
@@ -10,6 +7,8 @@ public class MyCITS2200Project implements CITS2200Project {
     private ArrayList<LinkedList<Integer>> transposeGraph;
     private HashMap<String, Integer> reverseMap;
     private int vertMapIndex; // the next index of the vertMap
+    private int[] distance;
+    private int[] eccentricity; //maintaining a list of vertices with minimum eccentricity gives us a list of graph centers
 
     //Constructor for the class
     public MyCITS2200Project() {
@@ -71,13 +70,12 @@ public class MyCITS2200Project implements CITS2200Project {
             return 0;
         }
 
-
         int numVert = reverseMap.size();
         //Array to record if the vertex has been visited
         boolean[] visited = new boolean[numVert];
         Arrays.fill(visited, false);
         //Array to hold the distances
-        int[] distance = new int[numVert];
+        distance = new int[numVert];
         Arrays.fill(distance, -1);
         //Get the urlFrom index and the urlTo index
         int start = reverseMap.get(urlFrom);
@@ -92,8 +90,10 @@ public class MyCITS2200Project implements CITS2200Project {
         while (!queue.isEmpty()) {
             //dequeue the front element of the queue
             int current = queue.poll();
-            //Iterate over the LinkedList at the given vertex
-            for (int adjVert: adjList.get(current)) {
+            //Iterate over each vertex in the LinkedList at the start vertex of the adjList
+            for (int adjVert : adjList.get(current)) {
+                //keeping track of the
+                int maxVertexEcc = 0;
                 //if colour is white/if the vertex has not been visited
                 if (!visited[adjVert]) {
                     visited[adjVert] = true;
@@ -111,8 +111,43 @@ public class MyCITS2200Project implements CITS2200Project {
         return -1;
     }
 
+
+    /* Need to find the set of vertices with minimum eccentricity
+       Eccentricity = the longest shortest path from specific vertex to another
+
+       1) Compute the eccentricity of each vertex
+                Lengths of shortest path to each vertex (from Q1)
+                -> the max of this path from a vertex is it's eccentricity
+                -> Perform a BFS search (from Q1) from that vertex and take the maximum value from the array
+                of distances computed
+
+        Doing this once for each starting vertex and maintaining a list of vertices
+        with minimum eccentricity gives us a list of graph centers
+
+        [ ] Requires one BFS per vertex giving:
+            Time Complexity: O(V × (V + E)) = O( V^2 + VE) which is optimal.
+
+
+         */
     @Override
     public String[] getCenters() {
+
+        LinkedList vertexList;
+        int[] minEccentricies;
+
+
+        //for each vertex perform a BFS
+        for (int i = 0; i < adjList.size(); i++) {
+
+            vertexList = adjList.get(i);
+
+            //performing the BFS on the specific vertex to get the distances array
+            getShortestPath(vertMap.get(i), vertMap.get(vertexList.remove()));
+
+
+        }
+
+
         return new String[0];
     }
 

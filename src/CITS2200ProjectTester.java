@@ -27,6 +27,9 @@ public class CITS2200ProjectTester {
         CITS2200Project proj = new MyCITS2200Project();
         // Load the graph into the project.
         loadGraph(proj, pathToGraphFile);
+        String urlFrom = "/wiki/Minimum-cost_flow_problem";
+        String urlTo = "/wiki/Flow_network";
+        System.out.println("THe Shortest path is: " + proj.getShortestPath(urlFrom,urlTo));
 
         // Write your own tests!
     }

@@ -2,16 +2,14 @@ import java.util.*;
 
 public class MyCITS2200Project implements CITS2200Project {
 
-    private HashMap<Integer, String> vertMap;
+    private HashMap<Integer, String> vertMap; //KEY:ID VALUE:URL
     private ArrayList<LinkedList<Integer>> adjList;//storing the graph
     private ArrayList<LinkedList<Integer>> transposeGraph;
-    private HashMap<String, Integer> reverseMap;
+    private HashMap<String, Integer> reverseMap;//KEY:URL VALUE:ID
     private int vertMapIndex; // the next index of the vertMap
-    private int[] distance;
     private boolean[] visited; //use in DFS for SCC
     private Stack<Integer> stack; //use in DFS for SCC
     private int[] eccentricity; //maintaining a list of vertices with minimum eccentricity gives us a list of graph centers
-
 
     //Constructor for the class
     public MyCITS2200Project() {
@@ -48,6 +46,13 @@ public class MyCITS2200Project implements CITS2200Project {
         transposeGraph.get(urlToID).add(urlFromID);
     }
 
+
+    /*
+     ******************************************************************************************************************
+     *                   getShortestPath()
+     ******************************************************************************************************************
+     */
+
     /**
      * Returns the shortest number of edges required to get from one page to another
      * If there is no path, returns -1.
@@ -76,7 +81,7 @@ public class MyCITS2200Project implements CITS2200Project {
         boolean[] visited = new boolean[numVert];
         Arrays.fill(visited, false);
         //Array to hold the distances
-        distance = new int[numVert];
+        int[] distance = new int[numVert];
         Arrays.fill(distance, -1);
         //Get the urlFrom index and the urlTo index
         int start = reverseMap.get(urlFrom);
@@ -93,8 +98,6 @@ public class MyCITS2200Project implements CITS2200Project {
             int current = queue.poll();
             //Iterate over each vertex in the LinkedList at the start vertex of the adjList
             for (int adjVert : adjList.get(current)) {
-                //keeping track of the
-                int maxVertexEcc = 0;
                 //if colour is white/if the vertex has not been visited
                 if (!visited[adjVert]) {
                     visited[adjVert] = true;
@@ -114,13 +117,14 @@ public class MyCITS2200Project implements CITS2200Project {
 
 
     /* Need to find the set of vertices with minimum eccentricity
-       Eccentricity = the longest shortest path from specific vertex to another
-
-       1) Compute the eccentricity of each vertex
+       Eccentricity = max length shortest path from a vertex to any other
                 Lengths of shortest path to each vertex (from Q1)
                 -> the max of this path from a vertex is it's eccentricity
                 -> Perform a BFS search (from Q1) from that vertex and take the maximum value from the array
                 of distances computed
+
+        for each vertex in the adjList
+        Do a BFS(vertex) to get max(distances[])       -----from Q1
 
         Doing this once for each starting vertex and maintaining a list of vertices
         with minimum eccentricity gives us a list of graph centers
@@ -128,22 +132,76 @@ public class MyCITS2200Project implements CITS2200Project {
         [ ] Requires one BFS per vertex giving:
             Time Complexity: O(V × (V + E)) = O( V^2 + VE) which is optimal.
          */
+    /*
+     ******************************************************************************************************************
+     *                   getCenters()
+     ******************************************************************************************************************
+     */
     @Override
     public String[] getCenters() {
 
-        LinkedList vertexList;
-        int[] minEccentricies;
-        //for each vertex perform a BFS
+        int currentMinEcc = Integer.MAX_VALUE;
+        ArrayList<Integer> minEccentricityVerts = new ArrayList<>();
+
+        //for each vertex in the adjList
         for (int i = 0; i < adjList.size(); i++) {
-            vertexList = adjList.get(i);
-            //performing the BFS on the specific vertex to get the distances array
-            getShortestPath(vertMap.get(i), vertMap.get(vertexList.remove()));
+
+            //perform a BFS on the vertex
+            int maxDistance = BFSDistances(i);
+
+            //if the
+            if (maxDistance < currentMinEcc) {
+                minEccentricityVerts.add(i);
+                currentMinEcc = maxDistance;
+            }
         }
 
-        return new String[0];
+        String[] centers = new String[minEccentricityVerts.size()];
+        for (int i = 0; i < minEccentricityVerts.size(); i++) {
+            centers[i] = vertMap.get(minEccentricityVerts.get(i));
+        }
+        return centers;
     }
 
 
+    //perform a BFS from the vertex that is passed in as a linked list
+    private int BFSDistances(int vertex) {
+
+        int maxDistance = -1;
+        int numVert = adjList.size();
+        boolean visited[] = new boolean[numVert];
+        int[] distance = new int[numVert];
+        LinkedList<Integer> queue = new LinkedList<>();
+
+        //mark the input vertex as visited and add to the queue
+        visited[vertex] = true;
+        queue.add(vertex);
+        distance[vertex] = 0; //don't need already initialised to zero
+
+        //iterate through each vertex in the array
+        while (!queue.isEmpty()) {
+            int current = queue.poll();
+
+            for (int n : adjList.get(current)) {
+                if (!visited[n]) {
+                    visited[n] = true;
+                    distance[n] = distance[current] + 1;
+                    queue.add(n);
+                }
+
+                if (distance[n] > maxDistance) {
+                    maxDistance = distance[n];
+                }
+            }
+        }
+        return maxDistance;
+    }
+
+    /*
+     ******************************************************************************************************************
+     *                   getStronglyConnectedComponents()
+     ******************************************************************************************************************
+     */
     @Override
     public String[][] getStronglyConnectedComponents() {
 
@@ -152,6 +210,7 @@ public class MyCITS2200Project implements CITS2200Project {
         Arrays.fill(visited, false);
         stack = fillStack(adjList, visited); //first DFS performed in fillStack
         visited = new boolean[V];
+
 
         //must change arraylist to String[][]
         List<List<Integer>> SCC = new ArrayList<>(); //change the size initialiser
@@ -198,6 +257,12 @@ public class MyCITS2200Project implements CITS2200Project {
         order.push(vertex);
     }
 
+
+    /*
+     ******************************************************************************************************************
+     *                   getHamiltonianPath()
+     ******************************************************************************************************************
+     */
     @Override
     public String[] getHamiltonianPath() {
         //Perform a backtracking DFS on the graph

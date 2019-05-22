@@ -7,9 +7,6 @@ public class MyCITS2200Project implements CITS2200Project {
     private ArrayList<LinkedList<Integer>> transposeGraph;
     private HashMap<String, Integer> reverseMap;//KEY:URL VALUE:ID
     private int vertMapIndex; // the next index of the vertMap
-    private boolean[] visited; //use in DFS for SCC
-    private Stack<Integer> stack; //use in DFS for SCC
-    private int[] eccentricity; //maintaining a list of vertices with minimum eccentricity gives us a list of graph centers
     private static int Infinity = Integer.MAX_VALUE/2;
 
     //Constructor for the class
@@ -207,9 +204,9 @@ public class MyCITS2200Project implements CITS2200Project {
     public String[][] getStronglyConnectedComponents() {
 
         int V = adjList.size();
-        visited = new boolean[V];
+        boolean[] visited = new boolean[V];
         Arrays.fill(visited, false);
-        stack = fillStack(adjList, visited); //first DFS performed in fillStack
+        Stack<Integer> stack = fillStack(adjList, visited);
         visited = new boolean[V];
 
 

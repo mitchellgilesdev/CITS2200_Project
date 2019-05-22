@@ -1,5 +1,6 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.Arrays;
 
 public class CITS2200ProjectTester {
     public static void loadGraph(CITS2200Project project, String path) {
@@ -28,6 +29,12 @@ public class CITS2200ProjectTester {
         // Load the graph into the project.
         loadGraph(proj, pathToGraphFile);
 
+
+        String urlFrom = "/wiki/Minimum-cost_flow_problem";
+        String urlTo = "/wiki/Flow_network";
+        System.out.println("THe Shortest path is: " + proj.getShortestPath(urlFrom,urlTo));
+        proj.getStronglyConnectedComponents();
+        System.out.println("Set of vertices the center is made up of: \n" + Arrays.toString(proj.getCenters()));
         // Write your own tests!
     }
 }

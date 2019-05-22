@@ -1,15 +1,15 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.util.*;
 
 public class MyCITS2200Project implements CITS2200Project {
 
-    private static int Infinity = Integer.MAX_VALUE/2;
-    private HashMap<Integer, String> vertMap;
+    private HashMap<Integer, String> vertMap; //KEY:ID VALUE:URL
     private ArrayList<LinkedList<Integer>> adjList;//storing the graph
     private ArrayList<LinkedList<Integer>> transposeGraph;
-    private HashMap<String, Integer> reverseMap;
+    private HashMap<String, Integer> reverseMap;//KEY:URL VALUE:ID
     private int vertMapIndex; // the next index of the vertMap
+    private boolean[] visited; //use in DFS for SCC
+    private Stack<Integer> stack; //use in DFS for SCC
+    private int[] eccentricity; //maintaining a list of vertices with minimum eccentricity gives us a list of graph centers
 
     //Constructor for the class
     public MyCITS2200Project() {
@@ -23,37 +23,45 @@ public class MyCITS2200Project implements CITS2200Project {
     //Check if vert exists, if not adds it to vertMap
     //returning the ID in the vertMap
     private int addVert(String url) {
-
         //if there is no vertex existing
         if (!vertMap.containsValue(url)) {
             vertMap.put(vertMapIndex, url);
             reverseMap.put(url, vertMapIndex);
             adjList.add(vertMapIndex, new LinkedList<>()); //add the vertex to the graph
+            transposeGraph.add(vertMapIndex, new LinkedList<>()); //fixing out of bounds error
             return vertMapIndex++;
         }
         //the vertex already exists, return the index
         return reverseMap.get(url);
     }
 
+
     @Override
     public void addEdge(String urlFrom, String urlTo) {
         int urlFromID = addVert(urlFrom);
         int urlToID = addVert(urlTo);
 
+        //add connection to the graph and the transpose graph
         adjList.get(urlFromID).add(urlToID);
-
-
+        transposeGraph.get(urlToID).add(urlFromID);
     }
 
-    @Override
+
+    /*
+     ******************************************************************************************************************
+     *                   getShortestPath()
+     ******************************************************************************************************************
+     */
+
     /**
-     * Finds the shortest path in number of links between two pages.
+     * Returns the shortest number of edges required to get from one page to another
      * If there is no path, returns -1.
      *
-     * @param urlFrom the URL where the path should start.
-     * @param urlTo the URL where the path should end.
-     * @return the length of the shortest path in number of links followed.
+     * @param urlFrom the URL/page where path will begin.
+     * @param urlTo   the URL/page where the path will end.
+     * @return the length of the shortest path to get from one page to another
      */
+    @Override
     public int getShortestPath(String urlFrom, String urlTo) {
 
         //if one of the urls does not exist in the graph
@@ -68,10 +76,10 @@ public class MyCITS2200Project implements CITS2200Project {
             return 0;
         }
 
-
         int numVert = reverseMap.size();
         //Array to record if the vertex has been visited
         boolean[] visited = new boolean[numVert];
+        Arrays.fill(visited, false);
         //Array to hold the distances
         int[] distance = new int[numVert];
         Arrays.fill(distance, -1);
@@ -79,7 +87,6 @@ public class MyCITS2200Project implements CITS2200Project {
         int start = reverseMap.get(urlFrom);
         int end = reverseMap.get(urlTo);
         //Initialise a LinkedList to act as a queue to explore vertices/pages
-        //Is queue better?
         LinkedList<Integer> queue = new LinkedList<>();
         //Add the starting vertex to the queue and initialise the root vertex distance to be 0
         visited[start] = true;
@@ -89,8 +96,8 @@ public class MyCITS2200Project implements CITS2200Project {
         while (!queue.isEmpty()) {
             //dequeue the front element of the queue
             int current = queue.poll();
-            //Iterate over the LinkedList at the given vertex
-            for (int adjVert: adjList.get(current)) {
+            //Iterate over each vertex in the LinkedList at the start vertex of the adjList
+            for (int adjVert : adjList.get(current)) {
                 //if colour is white/if the vertex has not been visited
                 if (!visited[adjVert]) {
                     visited[adjVert] = true;
@@ -108,175 +115,158 @@ public class MyCITS2200Project implements CITS2200Project {
         return -1;
     }
 
+
+    /* Need to find the set of vertices with minimum eccentricity
+       Eccentricity = max length shortest path from a vertex to any other
+                Lengths of shortest path to each vertex (from Q1)
+                -> the max of this path from a vertex is it's eccentricity
+                -> Perform a BFS search (from Q1) from that vertex and take the maximum value from the array
+                of distances computed
+
+        for each vertex in the adjList
+        Do a BFS(vertex) to get max(distances[])       -----from Q1
+
+        Doing this once for each starting vertex and maintaining a list of vertices
+        with minimum eccentricity gives us a list of graph centers
+
+        [ ] Requires one BFS per vertex giving:
+            Time Complexity: O(V × (V + E)) = O( V^2 + VE) which is optimal.
+         */
+    /*
+     ******************************************************************************************************************
+     *                   getCenters()
+     ******************************************************************************************************************
+     */
     @Override
     public String[] getCenters() {
-        return new String[0];
+
+        int currentMinEcc = Integer.MAX_VALUE;
+        ArrayList<Integer> minEccentricityVerts = new ArrayList<>();
+
+        //for each vertex in the adjList
+        for (int i = 0; i < adjList.size(); i++) {
+
+            //perform a BFS on the vertex
+            int maxDistance = BFSDistances(i);
+
+            //if the
+            if (maxDistance < currentMinEcc) {
+                minEccentricityVerts.add(i);
+                currentMinEcc = maxDistance;
+            }
+        }
+
+        String[] centers = new String[minEccentricityVerts.size()];
+        for (int i = 0; i < minEccentricityVerts.size(); i++) {
+            centers[i] = vertMap.get(minEccentricityVerts.get(i));
+        }
+        return centers;
     }
 
+
+    //perform a BFS from the vertex that is passed in as a linked list
+    private int BFSDistances(int vertex) {
+
+        int maxDistance = -1;
+        int numVert = adjList.size();
+        boolean visited[] = new boolean[numVert];
+        int[] distance = new int[numVert];
+        LinkedList<Integer> queue = new LinkedList<>();
+
+        //mark the input vertex as visited and add to the queue
+        visited[vertex] = true;
+        queue.add(vertex);
+        distance[vertex] = 0; //don't need already initialised to zero
+
+        //iterate through each vertex in the array
+        while (!queue.isEmpty()) {
+            int current = queue.poll();
+
+            for (int n : adjList.get(current)) {
+                if (!visited[n]) {
+                    visited[n] = true;
+                    distance[n] = distance[current] + 1;
+                    queue.add(n);
+                }
+
+                if (distance[n] > maxDistance) {
+                    maxDistance = distance[n];
+                }
+            }
+        }
+        return maxDistance;
+    }
+
+    /*
+     ******************************************************************************************************************
+     *                   getStronglyConnectedComponents()
+     ******************************************************************************************************************
+     */
     @Override
     public String[][] getStronglyConnectedComponents() {
 
+        int V = adjList.size();
+        visited = new boolean[V];
+        Arrays.fill(visited, false);
+        stack = fillStack(adjList, visited); //first DFS performed in fillStack
+        visited = new boolean[V];
+
+
+        //must change arraylist to String[][]
+        List<List<Integer>> SCC = new ArrayList<>(); //change the size initialiser
+        for (int i = 0; i < stack.size(); i++) {
+            int vert = stack.pop();
+            if (!visited[vert]) {
+                Stack<Integer> order = new Stack<>();
+                DFS(transposeGraph, vert, visited, order);
+                SCC.add(order);
+            }
+        }
+
+        //testing
+        System.out.println("SCC Array:" + SCC);
         // DFS on adjList and transpose graph
         /*
-        any vertex whose subtree was explored before another in the DFS order
-        (this is called post-order) either must
+        any vertex whose subtree was explored before another in the DFS stack
+        (this is called post-stack) either must
         not have a path to that other vertex, or is a descendant of it in the DFS tree
         */
 
         return new String[0][];
     }
 
-    //Helper method to use adjacency list to locate a certain element
-    private int getElement(int node, Object element) {
-        if (adjList.get(node).contains(element)) {
-            return 1;
-        }
-        return Infinity;
+    public Stack<Integer> fillStack(ArrayList<LinkedList<Integer>> graph, boolean[] visited) {
+        int V = graph.size();
+        Stack<Integer> order = new Stack<>();
+
+        for (int i = 0; i < V; i++)
+            if (!visited[i])
+                DFS(graph, i, visited, order);
+        return order;
+
     }
 
-    @Override
-    /**
-     * Finds a Hamiltonian path in the page graph. There may be many
-     * possible Hamiltonian paths. Any of these paths is a correct output.
-     * This method should never be called on a graph with more than 20
-     * vertices. If there is no Hamiltonian path, this method will
-     * return an empty array. The output array should contain the URLs of pages
-     * in a Hamiltonian path. The order matters, as the elements of the
-     * array represent this path in sequence. So the element [0] is the start
-     * of the path, and [1] is the next page, and so on.
-     *
-     * @return a Hamiltonian path of the page graph.
-     *
-     * @reference:
-     * https://github.com/pct960/Competitive_Programming/blob/0d365c2df56a771db3f6def70991f821ff7d8c39/src/Dynamic_Programming/ShortestHamiltonianCycle.java
+    public void DFS(ArrayList<LinkedList<Integer>> graph, int vertex, boolean[] visited, Stack<Integer> order) {
+
+        visited[vertex] = true;
+        for (int i = 0; i < graph.get(vertex).size(); i++) {
+            if (!visited[graph.get(vertex).get(i)]) {
+                DFS(graph, graph.get(vertex).get(i), visited, order);
+            }
+        }
+        order.push(vertex);
+    }
+
+
+    /*
+     ******************************************************************************************************************
+     *                   getHamiltonianPath()
+     ******************************************************************************************************************
      */
+    @Override
     public String[] getHamiltonianPath() {
-        //Use Bellman-Fords algorithm?
-        //Travelling Salesman problem?
-        //Use bit shifting
-        //2^V subsets of edges
-        int n = adjList.size();
-        int[][] dp = new int[1 << n][n];
-        for (int[] d : dp)
-            Arrays.fill(d, Infinity);
-        for (int i = 0; i < n; i++)
-            dp[1 << i][i] = 0;
-        for (int mask = 0; mask < 1 << n; mask++) {
-            for (int i = 0; i < n; i++) {
-                if ((mask & 1 << i) != 0) {
-                    for (int j = 0; j < n; j++) {
-                        if ((mask & 1 << j) != 0) {
-                            dp[mask][i] = Math.min(dp[mask][i], dp[mask ^ (1 << i)][j] + getElement(j, i));
-                        }
-                    }
-                }
-            }
-        }
-        int res = Integer.MAX_VALUE;
-        for (int i = 0; i < n; i++) {
-            res = Math.min(res, dp[(1 << n) - 1][i]);
-        }
-
-        // reconstruct path
-        int last = 0;
-        int cur = (1 << n) - 1;
-        int[] order = new int[n];
-        for (int i = n - 1; i >= 0; i--) {
-            int bj = -1;
-            for (int j = 0; j < n; j++) {
-                if ((cur & 1 << j) != 0
-                        && (bj == -1
-                        || dp[cur][bj] + (last == -1 ? 0 : getElement(bj, last)) > dp[cur][j] + (last == -1 ? 0 : getElement(j, last)))) {
-                    bj = j;
-                }
-            }
-            order[i] = bj;
-            cur ^= 1 << bj;
-            last = bj;
-        }
-        String [] result = new String[n];
-        for (int i = 0; i < order.length; i++) {
-            result[i] = vertMap.get(order[i]);
-        }
-        /*String[] ham = new String [n];
-
-        // Loop to check if the path exists using the indices in the array, order
-        for ( int i = 0; i < order.length-1; i++ )
-            if( !page.getRow(order[i]).contains(order[i+1]) )
-                return ham;
-
-        for( int i = 0; i < n; i++ )
-            ham[i] = page.getVertex(order[i]);
-
-        return ham;*/
-
-        //System.out.println(Arrays.deepToString(dp).replace("], ", "]\n").replace("[[", "[").replace("]]", "]"));
-        System.out.println(Arrays.toString(result));
-        return result;
-    }
-
-    //Testing for the method shortestPath
-    public static void main(String [] args) {
-        MyCITS2200Project test = new MyCITS2200Project();
-        /*String path = "exampleGraphs/example_graph.txt";
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(path));
-            while (reader.ready()) {
-                String from = reader.readLine();
-                String to = reader.readLine();
-                //System.out.println("Adding edge from " + from + " to " + to);
-                test.addEdge(from, to);
-            }
-        } catch (Exception e) {
-            System.out.println("There was a problem:");
-            System.out.println(e.toString());
-        }*/
-
-
-        test.addEdge("1", "2");
-        test.addEdge("1", "3");
-        test.addEdge("1", "5");
-        test.addEdge("3", "4");
-        test.addEdge("3", "5");
-        test.addEdge("4", "5");
-        test.addEdge("4", "2"); // Added edge for HAM
-        test.addEdge("2", "7");
-        test.addEdge("7", "6");
-        test.addEdge("6", "5");
-        test.addEdge("5", "8");
-
-        /*
-        //###############################################################################
-        //Shortest Path tests
-        //###############################################################################
-        System.out.println("Shortest paths tests initializing...");
-        Random rand = new Random();
-        int nums = test.adjList.size();
-
-        //-------------------------------------------------------------------------------
-        System.out.println("\nTesting for when 1 or both urls don't exist in the graph...");
-        if (test.getShortestPath("1", "10") != -1) {
-            System.out.println("Value is incorrect!");
-            System.exit(0);
-        }
-        else if (test.getShortestPath("10", "2") != -1) {
-            System.out.println("Value is incorrect!");
-            System.exit(0);
-        }
-        //-------------------------------------------------------------------------------
-        System.out.println("\nTesting for both urls are the same...");
-        System.out.println(test.getShortestPath("1", "1"));
-        //-------------------------------------------------------------------------------
-
-        System.out.println("\nTesting for different vertices...");
-        for (int i = 0; i < nums; i++) {
-            String urlTo = Integer.toString(rand.nextInt(nums)+1);
-            String urlFrom = Integer.toString(rand.nextInt(nums)+1);
-            System.out.println("\n"+urlFrom + " to " + urlTo);
-            System.out.println(test.getShortestPath(urlFrom, urlTo));
-
-        }*/
-        //System.out.println(test.reverseMap);
-        System.out.println(test.getHamiltonianPath());
+        //Perform a backtracking DFS on the graph
+        // start at a vertex, visit every vertex once and once only and come back to the original vertex
+        return new String[0];
     }
 }

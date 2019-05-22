@@ -30,7 +30,7 @@ public class CITS2200ProjectTester {
         String urlFrom = "/wiki/Minimum-cost_flow_problem";
         String urlTo = "/wiki/Flow_network";
         System.out.println("THe Shortest path is: " + proj.getShortestPath(urlFrom,urlTo));
-
+        proj.getStronglyConnectedComponents();
         // Write your own tests!
     }
 }

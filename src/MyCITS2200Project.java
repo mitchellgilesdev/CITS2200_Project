@@ -9,14 +9,8 @@ public class MyCITS2200Project implements CITS2200Project {
     private int vertMapIndex; // the next index of the vertMap
     private int[] distance;
     private boolean[] visited; //use in DFS for SCC
-    private Stack<Integer> order; //use in DFS for SCC
+    private Stack<Integer> stack; //use in DFS for SCC
     private int[] eccentricity; //maintaining a list of vertices with minimum eccentricity gives us a list of graph centers
-
-    //testing
-    private String source = " ";
-    private String to = " ";
-    int sourceint = 0;
-    int toint = 0;
 
 
     //Constructor for the class
@@ -49,12 +43,6 @@ public class MyCITS2200Project implements CITS2200Project {
         int urlFromID = addVert(urlFrom);
         int urlToID = addVert(urlTo);
 
-        //all testing
-        int testFromID = urlFromID + 1;
-        int testToId = urlToID + 1;
-        source = source + " " + testFromID;
-        to = to + " " + testToId;
-
         //add connection to the graph and the transpose graph
         adjList.get(urlFromID).add(urlToID);
         transposeGraph.get(urlToID).add(urlFromID);
@@ -70,12 +58,6 @@ public class MyCITS2200Project implements CITS2200Project {
      */
     @Override
     public int getShortestPath(String urlFrom, String urlTo) {
-
-        //testing
-        System.out.println(source);
-        System.out.println(to);
-        System.out.println(sourceint);
-        System.out.println(toint);
 
         //if one of the urls does not exist in the graph
         if (!reverseMap.containsKey(urlFrom) || !reverseMap.containsKey(urlTo)) {
@@ -168,13 +150,13 @@ public class MyCITS2200Project implements CITS2200Project {
         int V = adjList.size();
         visited = new boolean[V];
         Arrays.fill(visited, false);
-        order = fillOrder(adjList, visited); //first DFS performed in fillOrder
+        stack = fillStack(adjList, visited); //first DFS performed in fillStack
         visited = new boolean[V];
 
         //must change arraylist to String[][]
         List<List<Integer>> SCC = new ArrayList<>(); //change the size initialiser
-        for (int i = 0; i < order.size(); i++) {
-            int vert = order.pop();
+        for (int i = 0; i < stack.size(); i++) {
+            int vert = stack.pop();
             if (!visited[vert]) {
                 Stack<Integer> order = new Stack<>();
                 DFS(transposeGraph, vert, visited, order);
@@ -183,18 +165,18 @@ public class MyCITS2200Project implements CITS2200Project {
         }
 
         //testing
-        System.out.println("\n" + SCC);
+        System.out.println("SCC Array:" + SCC);
         // DFS on adjList and transpose graph
         /*
-        any vertex whose subtree was explored before another in the DFS order
-        (this is called post-order) either must
+        any vertex whose subtree was explored before another in the DFS stack
+        (this is called post-stack) either must
         not have a path to that other vertex, or is a descendant of it in the DFS tree
         */
 
         return new String[0][];
     }
 
-    public Stack<Integer> fillOrder(ArrayList<LinkedList<Integer>> graph, boolean[] visited) {
+    public Stack<Integer> fillStack(ArrayList<LinkedList<Integer>> graph, boolean[] visited) {
         int V = graph.size();
         Stack<Integer> order = new Stack<>();
 

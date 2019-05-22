@@ -399,6 +399,8 @@ public class MyCITS2200Project implements CITS2200Project {
 
         }*/
         //System.out.println(test.reverseMap);
-        System.out.println(test.getHamiltonianPath());
+        System.out.println(Arrays.toString(test.getHamiltonianPath()));
+        System.out.println(Arrays.deepToString(test.getStronglyConnectedComponents()));
+        System.out.println(Arrays.toString(test.getCenters()));
     }
 }

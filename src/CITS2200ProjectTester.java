@@ -21,6 +21,7 @@ public class CITS2200ProjectTester {
         }
     }
 
+
     public static void main(String[] args) {
         // Change this to be the path to the graph file.
         String pathToGraphFile = "exampleGraphs/example2.txt";
@@ -35,6 +36,8 @@ public class CITS2200ProjectTester {
         System.out.println("THe Shortest path is: " + proj.getShortestPath(urlFrom,urlTo));
         proj.getStronglyConnectedComponents();
         System.out.println("Set of vertices the center is made up of: \n" + Arrays.toString(proj.getCenters()));
+        System.out.println("from one to itself: " + proj.getShortestPath("3","3"));
+        System.out.println("from one to itself: " + proj.getShortestPath("1234","1043"));
         // Write your own tests!
     }
 }

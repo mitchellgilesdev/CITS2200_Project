@@ -3,11 +3,11 @@ import java.util.*;
 public class MyCITS2200Project implements CITS2200Project {
 
     private HashMap<Integer, String> vertMap; //KEY:ID VALUE:URL
-    private ArrayList<LinkedList<Integer>> adjList;//storing the graph
+    public ArrayList<LinkedList<Integer>> adjList;//storing the graph
     private ArrayList<LinkedList<Integer>> transposeGraph;
     private HashMap<String, Integer> reverseMap;//KEY:URL VALUE:ID
     private int vertMapIndex; // the next index of the vertMap
-    private static int Infinity = Integer.MAX_VALUE/2;
+    private static int Infinity = Integer.MAX_VALUE / 2;
 
     //Constructor for the class
     public MyCITS2200Project() {
@@ -114,40 +114,28 @@ public class MyCITS2200Project implements CITS2200Project {
     }
 
 
-    /* Need to find the set of vertices with minimum eccentricity
-       Eccentricity = max length shortest path from a vertex to any other
-                Lengths of shortest path to each vertex (from Q1)
-                -> the max of this path from a vertex is it's eccentricity
-                -> Perform a BFS search (from Q1) from that vertex and take the maximum value from the array
-                of distances computed
-
-        for each vertex in the adjList
-        Do a BFS(vertex) to get max(distances[])       -----from Q1
-
-        Doing this once for each starting vertex and maintaining a list of vertices
-        with minimum eccentricity gives us a list of graph centers
-
-        [ ] Requires one BFS per vertex giving:
-            Time Complexity: O(V × (V + E)) = O( V^2 + VE) which is optimal.
-         */
     /*
      ******************************************************************************************************************
      *                   getCenters()
      ******************************************************************************************************************
      */
+
+    /**
+     * Finds all the centers of the page graph. The order of pages
+     * in the output does not matter. Any order is correct as long as
+     * all the centers are in the array, and no pages that aren't centers
+     * are in the array.
+     *
+     * @return an array containing all the URLs that correspond to pages that are centers.
+     */
     @Override
     public String[] getCenters() {
-
         int currentMinEcc = Integer.MAX_VALUE;
         ArrayList<Integer> minEccentricityVerts = new ArrayList<>();
 
-        //for each vertex in the adjList
+        //for each vertex in the adjList perform a BFS on the vertex
         for (int i = 0; i < adjList.size(); i++) {
-
-            //perform a BFS on the vertex
             int maxDistance = BFSDistances(i);
-
-            //if the
             if (maxDistance < currentMinEcc) {
                 minEccentricityVerts.add(i);
                 currentMinEcc = maxDistance;
@@ -162,12 +150,15 @@ public class MyCITS2200Project implements CITS2200Project {
     }
 
 
-    //perform a BFS from the vertex that is passed in as a linked list
+    /**
+     * @param vertex perform a BFS from the vertex that is passed in as a linked list
+     * @return
+     */
     private int BFSDistances(int vertex) {
 
         int maxDistance = -1;
         int numVert = adjList.size();
-        boolean visited[] = new boolean[numVert];
+        boolean[] visited = new boolean[numVert];
         int[] distance = new int[numVert];
         LinkedList<Integer> queue = new LinkedList<>();
 
@@ -263,6 +254,7 @@ public class MyCITS2200Project implements CITS2200Project {
         }
         return Infinity;
     }
+
     /*
      ******************************************************************************************************************
      *                   getHamiltonianPath()
@@ -313,7 +305,7 @@ public class MyCITS2200Project implements CITS2200Project {
             cur ^= 1 << bj;
             last = bj;
         }
-        String [] result = new String[n];
+        String[] result = new String[n];
         for (int i = 0; i < order.length; i++) {
             result[i] = vertMap.get(order[i]);
         }
@@ -335,7 +327,7 @@ public class MyCITS2200Project implements CITS2200Project {
     }
 
     //Testing for the method shortestPath
-    public static void main(String [] args) {
+    public static void main(String[] args) {
         MyCITS2200Project test = new MyCITS2200Project();
         /*String path = "exampleGraphs/example_graph.txt";
         try {

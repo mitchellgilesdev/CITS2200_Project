@@ -40,10 +40,9 @@ public class CITS2200ProjectTester {
         System.out.println("from one to itself: " + proj.getShortestPath("1234","1043"));
 */
 
-        System.out.println("Hamiltonian Path: \n");
-        System.out.println(Arrays.toString(proj.getHamiltonianPath()));
+        System.out.println("\nHamiltonian Path: " + Arrays.toString(proj.getHamiltonianPath()));
         System.out.println( "get Centers: " + Arrays.toString(proj.getCenters()));
-        System.out.println( Arrays.deepToString(proj.getStronglyConnectedComponents()));
+        System.out.println( "SCC: " +  Arrays.deepToString(proj.getStronglyConnectedComponents()));
         // Write your own tests!
     }
 

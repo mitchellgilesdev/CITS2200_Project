@@ -1,11 +1,9 @@
 import java.util.*;
-import java.io.BufferedReader;
-import java.io.FileReader;
 
 public class MyCITS2200Project implements CITS2200Project {
 
     private HashMap<Integer, String> vertMap; //KEY:ID VALUE:URL
-    public ArrayList<LinkedList<Integer>> adjList;//storing the graph
+    private ArrayList<LinkedList<Integer>> adjList;//storing the graph
     private ArrayList<LinkedList<Integer>> transposeGraph;
     private HashMap<String, Integer> reverseMap;//KEY:URL VALUE:ID
     private int vertMapIndex; // the next index of the vertMap
@@ -20,6 +18,10 @@ public class MyCITS2200Project implements CITS2200Project {
         vertMapIndex = 0;
     }
 
+    /**
+     * @param url The URL to be added to the graph
+     * @return the ID the URL is mapped to from vertMap
+     */
     //Check if vert exists, if not adds it to vertMap
     //returning the ID in the vertMap
     private int addVert(String url) {
@@ -256,14 +258,6 @@ public class MyCITS2200Project implements CITS2200Project {
     }
 
 
-    //Helper method to use adjacency list to locate a certain element
-    private int getElement(int node, int element) {
-        if (!(adjList.get(node).contains(element))) {
-            return Infinity;
-        }
-        return 1;
-    }
-
     /*
      ******************************************************************************************************************
      *                   getHamiltonianPath()
@@ -304,26 +298,6 @@ public class MyCITS2200Project implements CITS2200Project {
                 }
             }
         }
-        //  System.out.println(Arrays.deepToString(dp).replace("], ", "]\n").replace("[[", "[").replace("]]", "]"));
-
-        // reconstruct path
-        /*int last = 0;
-        int cur = (1 << n) - 1;
-        int[] order = new int[n];
-        for (int i = n - 1; i >= 0; i--) {
-            int bj = -1;
-            for (int j = 0; j < n; j++) {
-                if ((cur & 1 << j) != 0
-                        && (bj == -1
-                        || dp[cur][bj] + (last == -1 ? 0 : getElement(bj, last)) > dp[cur][j] + (last == -1 ? 0 : getElement(j, last)))) {
-                    bj = j;
-                }
-            }
-            order[i] = bj;
-            cur ^= 1 << bj;
-            last = bj;
-        }*/
-
         int last = -1;
         int cur = (1 << n) - 1;
         int[] order = new int[n];
@@ -342,6 +316,7 @@ public class MyCITS2200Project implements CITS2200Project {
             cur ^= 1 << bj;
             last = bj;
         }
+
         String[] result = new String[n];
         for (int i = 0; i < order.length; i++) {
             if (i != n - 1) {
@@ -352,87 +327,13 @@ public class MyCITS2200Project implements CITS2200Project {
             result[i] = vertMap.get(order[i]);
         }
         return result;
-        /*String[] ham = new String [n];
-
-        // Loop to check if the path exists using the indices in the array, order
-        for ( int i = 0; i < order.length-1; i++ )
-            if( !page.getRow(order[i]).contains(order[i+1]) )
-                return ham;
-
-        for( int i = 0; i < n; i++ )
-            ham[i] = page.getVertex(order[i]);
-
-        return ham;*/
-
-        //System.out.println(Arrays.deepToString(dp).replace("], ", "]\n").replace("[[", "[").replace("]]", "]"));
     }
 
-    //Testing for the method shortestPath
-    public static void main(String[] args) {
-        MyCITS2200Project test = new MyCITS2200Project();
-        String path = "exampleGraphs/example_graph.txt";
-        //String path = "exampleGraphs/example2.txt";
-        //String path = "exampleGraphs/small_graph";
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(path));
-            while (reader.ready()) {
-                String from = reader.readLine();
-                String to = reader.readLine();
-                //System.out.println("Adding edge from " + from + " to " + to);
-                test.addEdge(from, to);
-            }
-        } catch (Exception e) {
-            System.out.println("There was a problem:");
-            System.out.println(e.toString());
+    //Helper method to use adjacency list to locate a certain element
+    private int getElement(int node, int element) {
+        if (!(adjList.get(node).contains(element))) {
+            return Infinity;
         }
-        //System.out.println(test.getShortestPath("2","0"));
-        System.out.println(Arrays.toString(test.getHamiltonianPath()));
-        //System.out.println(Arrays.deepToString(test.getStronglyConnectedComponents()));
-        //System.out.println(Arrays.toString(test.getCenters()));
-
-        /*test.addEdge("1", "2");
-        test.addEdge("1", "3");
-        test.addEdge("1", "5");
-        test.addEdge("3", "4");
-        test.addEdge("3", "5");
-        test.addEdge("4", "5");
-        test.addEdge("4", "2"); // Added edge for HAM
-        test.addEdge("2", "7");
-        test.addEdge("7", "6");
-        test.addEdge("6", "5");
-        test.addEdge("5", "8");*/
-
-        /*
-        //###############################################################################
-        //Shortest Path tests
-        //###############################################################################
-        System.out.println("Shortest paths tests initializing...");
-        Random rand = new Random();
-        int nums = test.adjList.size();
-
-        //-------------------------------------------------------------------------------
-        System.out.println("\nTesting for when 1 or both urls don't exist in the graph...");
-        if (test.getShortestPath("1", "10") != -1) {
-            System.out.println("Value is incorrect!");
-            System.exit(0);
-        }
-        else if (test.getShortestPath("10", "2") != -1) {
-            System.out.println("Value is incorrect!");
-            System.exit(0);
-        }
-        //-------------------------------------------------------------------------------
-        System.out.println("\nTesting for both urls are the same...");
-        System.out.println(test.getShortestPath("1", "1"));
-        //-------------------------------------------------------------------------------
-
-        System.out.println("\nTesting for different vertices...");
-        for (int i = 0; i < nums; i++) {
-            String urlTo = Integer.toString(rand.nextInt(nums)+1);
-            String urlFrom = Integer.toString(rand.nextInt(nums)+1);
-            System.out.println("\n"+urlFrom + " to " + urlTo);
-            System.out.println(test.getShortestPath(urlFrom, urlTo));
-
-        }*/
-        //System.out.println(test.reverseMap);
+        return 1;
     }
 }

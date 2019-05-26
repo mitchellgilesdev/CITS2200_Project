@@ -24,13 +24,13 @@ public class CITS2200ProjectTester {
 
     public static void main(String[] args) {
         // Change this to be the path to the graph file.
-        String pathToGraphFile = "exampleGraphs/example2.txt";
+        String pathToGraphFile = "exampleGraphs/small_graph";
         // Create an instance of your implementation.
         CITS2200Project proj = new MyCITS2200Project();
         // Load the graph into the project.
         loadGraph(proj, pathToGraphFile);
 
-
+/*
         String urlFrom = "/wiki/Minimum-cost_flow_problem";
         String urlTo = "/wiki/Flow_network";
         System.out.println("THe Shortest path is: " + proj.getShortestPath(urlFrom,urlTo));
@@ -38,6 +38,12 @@ public class CITS2200ProjectTester {
         System.out.println("Set of vertices the center is made up of: \n" + Arrays.toString(proj.getCenters()));
         System.out.println("from one to itself: " + proj.getShortestPath("3","3"));
         System.out.println("from one to itself: " + proj.getShortestPath("1234","1043"));
+*/
+
+        System.out.println("Hamiltonian Path: \n");
+        System.out.println(Arrays.toString(proj.getHamiltonianPath()));
+        System.out.println( "get Centers: " + Arrays.toString(proj.getCenters()));
+        System.out.println( Arrays.deepToString(proj.getStronglyConnectedComponents()));
         // Write your own tests!
     }
 

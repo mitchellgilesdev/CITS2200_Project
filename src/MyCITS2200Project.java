@@ -118,7 +118,10 @@ public class MyCITS2200Project implements CITS2200Project {
 
     /*
      ******************************************************************************************************************
+     *
      *                   getCenters()
+     *                   For disconnected graphs ignore disconnected vertices when calculating BFSDistances.
+     *
      ******************************************************************************************************************
      */
 
@@ -138,7 +141,10 @@ public class MyCITS2200Project implements CITS2200Project {
         //for each vertex in the adjList perform a BFS on the vertex
         for (int i = 0; i < adjList.size(); i++) {
             int maxDistance = BFSDistances(i);
-            if (maxDistance < currentMinEcc) {
+            if (maxDistance == currentMinEcc) {
+                minEccentricityVerts.add(i);
+            } else if (maxDistance < currentMinEcc) {
+                minEccentricityVerts.clear();
                 minEccentricityVerts.add(i);
                 currentMinEcc = maxDistance;
             }
@@ -196,16 +202,15 @@ public class MyCITS2200Project implements CITS2200Project {
     @Override
     public String[][] getStronglyConnectedComponents() {
 
+        String[][] output;
         int V = adjList.size();
         boolean[] visited = new boolean[V];
         Arrays.fill(visited, false);
         Stack<Integer> stack = fillStack(adjList, visited);
         visited = new boolean[V];
 
-
-        //must change arraylist to String[][]
-        List<List<Integer>> SCC = new ArrayList<>(); //change the size initialiser
-        for (int i = 0; i < stack.size(); i++) {
+        List<List<Integer>> SCC = new ArrayList<>();
+        while (!stack.isEmpty()) {
             int vert = stack.pop();
             if (!visited[vert]) {
                 Stack<Integer> order = new Stack<>();
@@ -214,16 +219,18 @@ public class MyCITS2200Project implements CITS2200Project {
             }
         }
 
-        //testing
-        System.out.println("SCC Array:" + SCC);
-        // DFS on adjList and transpose graph
-        /*
-        any vertex whose subtree was explored before another in the DFS stack
-        (this is called post-stack) either must
-        not have a path to that other vertex, or is a descendant of it in the DFS tree
-        */
+        //String[SCC #][Components]
+        output = new String[SCC.size()][];
 
-        return new String[0][];
+        for (int i = 0; i < SCC.size(); i++) {
+            String[] components = new String[SCC.get(i).size()];
+            for (int j = 0; j < SCC.get(i).size(); j++) {
+                components[j] = vertMap.get(SCC.get(i).get(j));
+            }
+            output[i] = components;
+        }
+
+        return output;
     }
 
     public Stack<Integer> fillStack(ArrayList<LinkedList<Integer>> graph, boolean[] visited) {
@@ -297,7 +304,7 @@ public class MyCITS2200Project implements CITS2200Project {
                 }
             }
         }
-        System.out.println(Arrays.deepToString(dp).replace("], ", "]\n").replace("[[", "[").replace("]]", "]"));
+        //  System.out.println(Arrays.deepToString(dp).replace("], ", "]\n").replace("[[", "[").replace("]]", "]"));
 
         // reconstruct path
         /*int last = 0;
@@ -337,8 +344,8 @@ public class MyCITS2200Project implements CITS2200Project {
         }
         String[] result = new String[n];
         for (int i = 0; i < order.length; i++) {
-            if (i!=n-1) {
-                if (!(adjList.get(order[i]).contains(order[i+1]))) {
+            if (i != n - 1) {
+                if (!(adjList.get(order[i]).contains(order[i + 1]))) {
                     return new String[0];
                 }
             }

@@ -1,4 +1,6 @@
 import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
 
 public class MyCITS2200Project implements CITS2200Project {
 
@@ -248,11 +250,11 @@ public class MyCITS2200Project implements CITS2200Project {
 
 
     //Helper method to use adjacency list to locate a certain element
-    private int getElement(int node, Object element) {
-        if (adjList.get(node).contains(element)) {
-            return 1;
+    private int getElement(int node, int element) {
+        if (!(adjList.get(node).contains(element))) {
+            return Infinity;
         }
-        return Infinity;
+        return 1;
     }
 
     /*
@@ -266,12 +268,24 @@ public class MyCITS2200Project implements CITS2200Project {
         //Travelling Salesman problem?
         //Use bit shifting
         //2^V subsets of edges
+
+        //Gets the number of vertices
         int n = adjList.size();
+        //Use bit shifting to create a 2^n by n matrix
+        //As dynamic programming tells us, find all the solutions and pick the best one
+        //Use bitmasks to represent subsets
         int[][] dp = new int[1 << n][n];
-        for (int[] d : dp)
+
+        //fill the entire matrix by infinity/large value
+        for (int[] d : dp) {
             Arrays.fill(d, Infinity);
-        for (int i = 0; i < n; i++)
+        }
+
+        for (int i = 0; i < n; i++) {
             dp[1 << i][i] = 0;
+        }
+
+        //Iteration over the 2^n lines of code
         for (int mask = 0; mask < 1 << n; mask++) {
             for (int i = 0; i < n; i++) {
                 if ((mask & 1 << i) != 0) {
@@ -283,13 +297,10 @@ public class MyCITS2200Project implements CITS2200Project {
                 }
             }
         }
-        int res = Integer.MAX_VALUE;
-        for (int i = 0; i < n; i++) {
-            res = Math.min(res, dp[(1 << n) - 1][i]);
-        }
+        System.out.println(Arrays.deepToString(dp).replace("], ", "]\n").replace("[[", "[").replace("]]", "]"));
 
         // reconstruct path
-        int last = 0;
+        /*int last = 0;
         int cur = (1 << n) - 1;
         int[] order = new int[n];
         for (int i = n - 1; i >= 0; i--) {
@@ -304,11 +315,36 @@ public class MyCITS2200Project implements CITS2200Project {
             order[i] = bj;
             cur ^= 1 << bj;
             last = bj;
+        }*/
+
+        int last = -1;
+        int cur = (1 << n) - 1;
+        int[] order = new int[n];
+        //Selecting the vertices backwards
+        for (int i = n - 1; i >= 0; i--) {
+            int bj = -1;
+
+            for (int j = 0; j < n; j++) {
+                if ((cur & 1 << j) != 0 && (bj == -1
+                        || dp[cur][bj] + (last == -1 ? 0 : getElement(bj, last)) > dp[cur][j] + (last == -1 ? 0 : getElement(j, last)))) {
+                    bj = j;
+                }
+            }
+
+            order[i] = bj;
+            cur ^= 1 << bj;
+            last = bj;
         }
         String[] result = new String[n];
         for (int i = 0; i < order.length; i++) {
+            if (i!=n-1) {
+                if (!(adjList.get(order[i]).contains(order[i+1]))) {
+                    return new String[0];
+                }
+            }
             result[i] = vertMap.get(order[i]);
         }
+        return result;
         /*String[] ham = new String [n];
 
         // Loop to check if the path exists using the indices in the array, order
@@ -322,14 +358,14 @@ public class MyCITS2200Project implements CITS2200Project {
         return ham;*/
 
         //System.out.println(Arrays.deepToString(dp).replace("], ", "]\n").replace("[[", "[").replace("]]", "]"));
-        System.out.println(Arrays.toString(result));
-        return result;
     }
 
     //Testing for the method shortestPath
     public static void main(String[] args) {
         MyCITS2200Project test = new MyCITS2200Project();
-        /*String path = "exampleGraphs/example_graph.txt";
+        String path = "exampleGraphs/example_graph.txt";
+        //String path = "exampleGraphs/example2.txt";
+        //String path = "exampleGraphs/small_graph";
         try {
             BufferedReader reader = new BufferedReader(new FileReader(path));
             while (reader.ready()) {
@@ -341,10 +377,13 @@ public class MyCITS2200Project implements CITS2200Project {
         } catch (Exception e) {
             System.out.println("There was a problem:");
             System.out.println(e.toString());
-        }*/
+        }
+        //System.out.println(test.getShortestPath("2","0"));
+        System.out.println(Arrays.toString(test.getHamiltonianPath()));
+        //System.out.println(Arrays.deepToString(test.getStronglyConnectedComponents()));
+        //System.out.println(Arrays.toString(test.getCenters()));
 
-
-        test.addEdge("1", "2");
+        /*test.addEdge("1", "2");
         test.addEdge("1", "3");
         test.addEdge("1", "5");
         test.addEdge("3", "4");
@@ -354,7 +393,7 @@ public class MyCITS2200Project implements CITS2200Project {
         test.addEdge("2", "7");
         test.addEdge("7", "6");
         test.addEdge("6", "5");
-        test.addEdge("5", "8");
+        test.addEdge("5", "8");*/
 
         /*
         //###############################################################################
@@ -388,8 +427,5 @@ public class MyCITS2200Project implements CITS2200Project {
 
         }*/
         //System.out.println(test.reverseMap);
-        System.out.println(Arrays.toString(test.getHamiltonianPath()));
-        System.out.println(Arrays.deepToString(test.getStronglyConnectedComponents()));
-        System.out.println(Arrays.toString(test.getCenters()));
     }
 }

@@ -5,7 +5,7 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
-
+import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MyCITS2200ProjectTest {
@@ -35,7 +35,7 @@ class MyCITS2200ProjectTest {
 
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void addEdge() {
 
         /*
@@ -52,31 +52,33 @@ class MyCITS2200ProjectTest {
 
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void getShortestPath() {
+
+
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void getCenters() {
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void getStronglyConnectedComponents() {
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void fillStack() {
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void DFS() {
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void getHamiltonianPath() {
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void main() {
     }
 }

@@ -6,7 +6,7 @@ class MyCITS2200ProjectTest {
 
     MyCITS2200Project[] proj;
     private final int iterator = 15;
-    ArrayList<AbstractMap.SimpleEntry<Integer, Integer>> edges[]; //key = from //value = to
+    ArrayList<AbstractMap.SimpleEntry<Integer, Integer>>[] edges; //key = from //value = to
 
     //this only checks positive numbers?
     @org.junit.jupiter.api.BeforeEach

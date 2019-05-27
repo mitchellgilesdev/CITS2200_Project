@@ -1,5 +1,6 @@
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 class MyCITS2200ProjectTest {
@@ -10,7 +11,7 @@ class MyCITS2200ProjectTest {
 
     //this only checks positive numbers?
     @org.junit.jupiter.api.BeforeEach
-    void setUp() {
+    void MyCITS2200ProjectTest() {
         Random rand = new Random();
         proj = new MyCITS2200Project[100];
         for (int i = 0; i < proj.length; i++) {
@@ -21,13 +22,13 @@ class MyCITS2200ProjectTest {
                     float f = rand.nextFloat();
                     if (f < 0.1) {
                         proj[i].addEdge(Integer.toString(j), Integer.toString(k));
-                        edges[i].add(new AbstractMap.SimpleEntry<>(j, k));
+                        //edges[i].add(new AbstractMap.SimpleEntry<>(j, k));
                     }
                 }
             }
         }
-
     }
+
 
     @org.junit.jupiter.api.Test
     void addEdge() {
@@ -43,10 +44,11 @@ class MyCITS2200ProjectTest {
             }
         }
         */
+        System.out.println(Arrays.toString(proj));
 
     }
 
-    @org.junit.jupiter.api.Test
+    /*@org.junit.jupiter.api.Test
     void getShortestPath() {
     }
 
@@ -72,5 +74,5 @@ class MyCITS2200ProjectTest {
 
     @org.junit.jupiter.api.Test
     void main() {
-    }
+    }*/
 }

@@ -256,6 +256,11 @@ public class MyCITS2200Project implements CITS2200Project {
     @Override
     public String[] getHamiltonianPath() {
         int numVert = adjList.size();
+
+        if (numVert > 20) {
+            throw new IllegalArgumentException("Graph is too large to get a Hamiltonian Path! " +
+                    "If strongly connected components(SCC) is greater than one, a path exists");
+        }
         int[][] matrix = new int[1 << numVert][numVert];
 
         //fill the entire matrix by MAX_INT
@@ -267,43 +272,44 @@ public class MyCITS2200Project implements CITS2200Project {
         }
 
         //Iteration over everything.
-        for (int mask = 0; mask < 1 << numVert; mask++) {
+        //Use bitmasking to represent subsets
+        for (int row = 0; row < 1 << numVert; row++) {
             for (int i = 0; i < numVert; i++) {
-                if ((mask & 1 << i) != 0) {
+                if ((row & 1 << i) != 0) {
                     for (int j = 0; j < numVert; j++) {
-                        if ((mask & 1 << j) != 0) {
-                            matrix[mask][i] = Math.min(matrix[mask][i], matrix[mask ^ (1 << i)][j] + getElement(j, i));
+                        if ((row & 1 << j) != 0) {
+                            matrix[row][i] = Math.min(matrix[row][i], matrix[row ^ (1 << i)][j] + getElement(j, i));
                         }
                     }
                 }
             }
         }
-        int last = -1;
-        int cur = (1 << numVert) - 1;
-        int[] order = new int[numVert];
+        //Constructs the a sequence of vertices for a hamiltonian path
+        int end = -1;
+        int current = (1 << numVert) - 1;
+        int[] path = new int[numVert];
         //Selecting the vertices backwards
         for (int i = numVert - 1; i >= 0; i--) {
             int bj = -1;
             for (int j = 0; j < numVert; j++) {
-                if ((cur & 1 << j) != 0 && (bj == -1
-                        || matrix[cur][bj] + (last == -1 ? 0 : getElement(bj, last)) > matrix[cur][j] + (last == -1 ? 0 : getElement(j, last)))) {
+                if ((current & 1 << j) != 0 && (bj == -1
+                        || matrix[current][bj] + (end == -1 ? 0 : getElement(bj, end)) > matrix[current][j] + (end == -1 ? 0 : getElement(j, end)))) {
                     bj = j;
                 }
             }
-            order[i] = bj;
-            cur ^= 1 << bj;
-            last = bj;
+            path[i] = bj;
+            current ^= 1 << bj;
+            end = bj;
         }
-
         //Formatting the answer as a String for output
         String[] result = new String[numVert];
-        for (int i = 0; i < order.length; i++) {
+        for (int i = 0; i < path.length; i++) {
             if (i != numVert - 1) {
-                if (!(adjList.get(order[i]).contains(order[i + 1]))) {
+                if (!(adjList.get(path[i]).contains(path[i + 1]))) {
                     return new String[0];
                 }
             }
-            result[i] = vertMap.get(order[i]);
+            result[i] = vertMap.get(path[i]);
         }
         return result;
     }

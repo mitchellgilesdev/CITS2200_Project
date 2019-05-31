@@ -1,3 +1,9 @@
+/*
+* Authors:
+* Mitchell Giles (22490361)
+* Ahbar Sakib (22512321)
+*
+*/
 import java.util.*;
 
 public class MyCITS2200Project implements CITS2200Project {
